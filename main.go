@@ -180,7 +180,7 @@ func (cc ChiaCollector) collectConnections(ch chan<- prometheus.Metric) {
 		)
 	}
 
-	desc = prometheus.NewDesc(
+	desc2 := prometheus.NewDesc(
 		"chia_peer_country",
 		"Number of peers currently connected.",
 		[]string{"country"}, nil,
@@ -198,9 +198,9 @@ func (cc ChiaCollector) collectConnections(ch chan<- prometheus.Metric) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(record.Country.IsoCode)
+		fmt.Println(json.Marshal(record))
 		ch <- prometheus.MustNewConstMetric(
-			desc,
+			desc2,
 			prometheus.GaugeValue,
 			float64(i+1),
 			record.Country.IsoCode,
