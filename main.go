@@ -52,6 +52,9 @@ var (
 func main() {
 	log.Printf("chia_exporter version %s", Version)
 	flag.Parse()
+	if ips == nil {
+		ips = make(map[string]string)
+	}
 	client, err := newClient(os.ExpandEnv(*cert), os.ExpandEnv(*key))
 	if err != nil {
 		log.Fatal(err)
