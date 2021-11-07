@@ -198,9 +198,9 @@ func (cc ChiaCollector) collectConnections(ch chan<- prometheus.Metric) {
 }
 
 type GeoIP struct {
-	Ip          string  `json:""`
+	Ip          string  `json:"ip"`
 	CountryCode string  `json:"country_code"`
-	CountryName string  `json:""`
+	CountryName string  `json:"country_name"`
 	RegionCode  string  `json:"region_code"`
 	RegionName  string  `json:"region_name"`
 	City        string  `json:"city"`
@@ -208,7 +208,6 @@ type GeoIP struct {
 	Lat         float32 `json:"latitude"`
 	Lon         float32 `json:"longitude"`
 	MetroCode   int     `json:"metro_code"`
-	AreaCode    int     `json:"area_code"`
 }
 
 func GetCode(address string) (string, error) {
@@ -225,10 +224,10 @@ func GetCode(address string) (string, error) {
 		return "", err
 	}
 
+	fmt.Println(string(body))
 	var geo GeoIP
 	err = json.Unmarshal(body, &geo)
 	if err != nil {
-		fmt.Println("json error")
 		fmt.Println(err)
 		return "", err
 	}
