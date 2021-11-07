@@ -29,7 +29,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/oschwald/geoip2-golang"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -47,12 +46,12 @@ var (
 
 var (
 	Version = "0.5.2"
+	ips     map[string]string
 )
 
 func main() {
 	log.Printf("chia_exporter version %s", Version)
 	flag.Parse()
-
 	client, err := newClient(os.ExpandEnv(*cert), os.ExpandEnv(*key))
 	if err != nil {
 		log.Fatal(err)
@@ -180,34 +179,71 @@ func (cc ChiaCollector) collectConnections(ch chan<- prometheus.Metric) {
 		)
 	}
 
-	desc2 := prometheus.NewDesc(
+	desc = prometheus.NewDesc(
 		"chia_peer_country",
 		"Number of peers currently connected.",
-		[]string{"country"}, nil,
+		[]string{"type"}, nil,
 	)
-
-	db, err := geoip2.Open("/GeoIP2-City.mmdb")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-
 	for i, e := range conns.Connections {
 
-		record, err := db.City(net.IP(e.PeerHost))
-		if err != nil {
-			log.Fatal(err)
+		if val, ok := ips[e.PeerHost]; ok {
+
+			ch <- prometheus.MustNewConstMetric(
+				desc,
+				prometheus.GaugeValue,
+				float64(i+1),
+				val,
+			)
+		} else {
+			code, _ := GetCode(e.PeerHost)
+			ch <- prometheus.MustNewConstMetric(
+				desc,
+				prometheus.GaugeValue,
+				float64(i+1),
+				code,
+			)
+			ips[e.PeerHost] = code
 		}
-		s, _ := json.Marshal(record)
-		fmt.Println(string(s))
-		ch <- prometheus.MustNewConstMetric(
-			desc2,
-			prometheus.GaugeValue,
-			float64(i+1),
-			record.Country.IsoCode,
-		)
 	}
 
+}
+
+type GeoIP struct {
+	Ip          string  `json:"ip"`
+	CountryCode string  `json:"country_code"`
+	CountryName string  `json:"country_name"`
+	RegionCode  string  `json:"region_code"`
+	RegionName  string  `json:"region_name"`
+	City        string  `json:"city"`
+	Zipcode     string  `json:"zipcode"`
+	Lat         float32 `json:"latitude"`
+	Lon         float32 `json:"longitude"`
+	MetroCode   int     `json:"metro_code"`
+}
+
+func GetCode(address string) (string, error) {
+	response, err := http.Get("https://freegeoip.live/json/" + address)
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+
+	fmt.Println(string(body))
+	var geo GeoIP
+	err = json.Unmarshal(body, &geo)
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+
+	return geo.CountryCode, nil
 }
 
 func (cc ChiaCollector) collectBlockchainState(ch chan<- prometheus.Metric) {
