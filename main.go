@@ -198,6 +198,7 @@ func (cc ChiaCollector) collectConnections(ch chan<- prometheus.Metric) {
 		if err != nil {
 			log.Fatal(err)
 		}
+		fmt.Println(record.Country)
 		ch <- prometheus.MustNewConstMetric(
 			desc,
 			prometheus.GaugeValue,
