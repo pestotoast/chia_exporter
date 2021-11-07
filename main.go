@@ -46,7 +46,6 @@ var (
 
 var (
 	Version = "0.5.2"
-	geo     GeoIP
 )
 
 func main() {
@@ -226,6 +225,7 @@ func GetCode(address string) (string, error) {
 		return "", err
 	}
 
+	var geo GeoIP
 	err = json.Unmarshal(body, &geo)
 	if err != nil {
 		fmt.Println(err)
