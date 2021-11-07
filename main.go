@@ -224,7 +224,7 @@ func GetCode(address string) (string, error) {
 		fmt.Println(err)
 		return "", err
 	}
-
+	fmt.Println(body)
 	var geo GeoIP
 	err = json.Unmarshal(body, &geo)
 	if err != nil {
