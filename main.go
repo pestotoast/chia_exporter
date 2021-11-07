@@ -181,29 +181,29 @@ func (cc ChiaCollector) collectConnections(ch chan<- prometheus.Metric) {
 			strconv.Itoa(nt+1),
 		)
 	}
+	/*
+		location := prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Name: "job_location",
+				Help: "Location connections number",
+			},
+			[]string{"location"},
+		)
 
-	location := prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "job_location",
-			Help: "Location connections number",
-		},
-		[]string{"location"},
-	)
+		for i, e := range conns.Connections {
 
-	for i, e := range conns.Connections {
+			if val, ok := ips[e.PeerHost]; ok {
 
-		if val, ok := ips[e.PeerHost]; ok {
+				location.With(prometheus.Labels{"location": val}).Set(float64(i + 1))
 
-			location.With(prometheus.Labels{"location": val}).Set(float64(i + 1))
-
-		} else {
-			code, _ := GetCode(e.PeerHost)
-			location.With(prometheus.Labels{"location": val}).Set(float64(i + 1))
-			ips[e.PeerHost] = code
+			} else {
+				code, _ := GetCode(e.PeerHost)
+				location.With(prometheus.Labels{"location": val}).Set(float64(i + 1))
+				ips[e.PeerHost] = code
+			}
 		}
-	}
-	prometheus.MustRegister(location)
-
+		prometheus.MustRegister(location)
+	*/
 }
 
 type GeoIP struct {
