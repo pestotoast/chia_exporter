@@ -198,7 +198,8 @@ func (cc ChiaCollector) collectConnections(ch chan<- prometheus.Metric) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(json.Marshal(record))
+		s, _ := json.Marshal(record)
+		fmt.Println(string(s))
 		ch <- prometheus.MustNewConstMetric(
 			desc2,
 			prometheus.GaugeValue,
