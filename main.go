@@ -183,10 +183,10 @@ func (cc ChiaCollector) collectConnections(ch chan<- prometheus.Metric) {
 	desc = prometheus.NewDesc(
 		"chia_peer_country",
 		"Number of peers currently connected.",
-		[]string{"type"}, nil,
+		[]string{"country"}, nil,
 	)
 
-	db, err := geoip2.Open("GeoIP2-City.mmdb")
+	db, err := geoip2.Open("/GeoIP2-City.mmdb")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -198,7 +198,7 @@ func (cc ChiaCollector) collectConnections(ch chan<- prometheus.Metric) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(record.Country)
+		fmt.Println(record.Country.Names)
 		ch <- prometheus.MustNewConstMetric(
 			desc,
 			prometheus.GaugeValue,
