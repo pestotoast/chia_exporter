@@ -182,32 +182,27 @@ func (cc ChiaCollector) collectConnections(ch chan<- prometheus.Metric) {
 		)
 	}
 
-	desc = prometheus.NewDesc(
-		"chia_peer_country",
-		"Number of peers currently connected.",
-		[]string{"type"}, nil,
+	location := prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "job_location",
+			Help: "Location connections number",
+		},
+		[]string{"location"},
 	)
+
 	for i, e := range conns.Connections {
 
 		if val, ok := ips[e.PeerHost]; ok {
 
-			ch <- prometheus.MustNewConstMetric(
-				desc,
-				prometheus.GaugeValue,
-				float64(i+1),
-				val,
-			)
+			location.With(prometheus.Labels{"location": val}).Set(float64(i + 1))
+
 		} else {
 			code, _ := GetCode(e.PeerHost)
-			ch <- prometheus.MustNewConstMetric(
-				desc,
-				prometheus.GaugeValue,
-				float64(i+1),
-				code,
-			)
+			location.With(prometheus.Labels{"location": val}).Set(float64(i + 1))
 			ips[e.PeerHost] = code
 		}
 	}
+	prometheus.MustRegister(location)
 
 }
 
