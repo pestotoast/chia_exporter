@@ -237,6 +237,16 @@ func (cc ChiaCollector) collectBlockchainState(ch chan<- prometheus.Metric) {
 		prometheus.GaugeValue,
 		float64(bs.BlockchainState.Peak.TotalIters),
 	)
+
+	ch <- prometheus.MustNewConstMetric(
+		prometheus.NewDesc(
+			"chia_blockchain_mempool_size",
+			"Current mempool size",
+			nil, nil,
+		),
+		prometheus.GaugeValue,
+		float64(bs.BlockchainState.MempoolSize),
+	)
 }
 
 func (cc ChiaCollector) collectWallets(ch chan<- prometheus.Metric) {
