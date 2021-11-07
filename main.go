@@ -208,10 +208,6 @@ func (cc ChiaCollector) collectConnections(ch chan<- prometheus.Metric) {
 
 }
 
-func GetCode(address string, db geoip2.Reader) string {
-
-}
-
 func (cc ChiaCollector) collectBlockchainState(ch chan<- prometheus.Metric) {
 	var bs BlockchainState
 	if err := queryAPI(cc.client, cc.baseURL, "get_blockchain_state", "", &bs); err != nil {
